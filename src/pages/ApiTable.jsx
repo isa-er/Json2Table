@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "../css/ApiTable.css"
+import Loading from "../components/Loading"
+import { Mosaic } from "react-loading-indicators";
 
 const JsonTable = ({ data }) => {
   if (typeof data !== "object" || data === null) {
@@ -44,20 +46,29 @@ const ApiTable = () => {
   const [apiUrl, setApiUrl] = useState("");
   const [jsonVeri, setjsonVeri] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setloading] = useState(false)
 
   const jsonGetir = async () => {
     try {
       setError(null);
+      setloading(true)
       const response = await fetch(apiUrl);
+      setjsonVeri(true)
       if (!response.ok) throw new Error("api isteği başarısız oldu");
       const data = await response.json();
       setjsonVeri(data);
     } catch (err) {
-      setError(err.message);
-    }
+      setError("hatalı link");
+    } finally{setloading(false)}
   };
 
+  const sil=()=>{
+    setApiUrl("")
+  }
+
   return (
+
+
     <div className="fulltablo">
       <div className="ust">
         <input
@@ -67,12 +78,15 @@ const ApiTable = () => {
           onChange={(e) => setApiUrl(e.target.value)}
           placeholder="API URL'sini girin"
         />
+        <button className="button" onClick={sil} >Sil</button>
         <button className="button" onClick={jsonGetir}>JSON Verisini Getir</button>
+        
 
-      </div>
+      </div>    
 
       <div className="tablo">
         {error && <p style={{ color: "red" }}>{error}</p>}
+        {loading &&  <Loading/> }
         {jsonVeri && (
           <table border="1">
             <tbody>
